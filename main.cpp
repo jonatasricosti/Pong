@@ -34,12 +34,14 @@ const int screen_bpp = 32;
 
 const int speed = 10;
 
+SDL_Surface *backgroundImage = NULL;
 SDL_Surface *player1Image = NULL;
 SDL_Surface *player2Image = NULL;
 SDL_Surface *ballImage = NULL;
 
 void LoadFiles()
 {
+    backgroundImage = SDL_LoadBMP("gfx/background.bmp");
     player1Image = SDL_LoadBMP("gfx/player1.bmp");
     player2Image = SDL_LoadBMP("gfx/player2.bmp");
     ballImage = fundo_transparente("gfx/ball.bmp", 0,255,255);
@@ -47,6 +49,7 @@ void LoadFiles()
 
 void CloseFiles()
 {
+    SDL_FreeSurface(backgroundImage);
     SDL_FreeSurface(player1Image);
     SDL_FreeSurface(player2Image);
     SDL_FreeSurface(ballImage);
@@ -61,6 +64,8 @@ void DrawImage(int x, int y, SDL_Surface *image)
 
     SDL_BlitSurface(image, NULL, tela, &mover);
 }
+
+
 
 // para o framerate
 Uint32 start = 0;
@@ -131,8 +136,8 @@ void ResetGame()
 	ball.x = (screen_width-ball.width)/2;
 	ball.y = (screen_height-ball.height)/2;
 
-	ball.vx = speed;
-	ball.vy = speed;
+	ball.vx = 20;
+	ball.vy = 10;
 }
 
 
@@ -169,7 +174,7 @@ void MovePlayer2(int speed)
 {
 	int py = player2.y + player2.height/2;
 
-	if(ball.vx > 0 && ball.x > 100)
+	if(ball.vx > 0 && ball.x > 200)
 	{
 		if(py > ball.y)
 		{
@@ -251,32 +256,14 @@ void MoveBall()
 }
 
 
+void DrawBackground()
+{
+    DrawImage(0,0,backgroundImage);
+}
+
+// desenha os pontos dos personagens na tela
 void DrawScore()
 {
-	char m1[10];
-	char m2[10];
-
-	sprintf(m1,"%i",Player1Pontos);
-	sprintf(m2,"%i",Player2Pontos);
-
-	//DrawRect(96,46,3*8,8,RGB15bits(31,31,31));
-	//DrawRect(136,46,3*8,8,RGB15bits(31,31,31));
-
-	//DrawTextMode3(96,46,m1,0xff);
-//	DrawTextMode3(136,46,m2,0xff);
-
-	if(Player1Pontos >= 100)
-	{
-		Player1Pontos = 0;
-		Player2Pontos = 0;
-	}
-
-	if(Player2Pontos >= 100)
-	{
-		Player1Pontos = 0;
-		Player2Pontos = 0;
-	}
-
 }
 
 int main(int argc, char*args[])
@@ -301,9 +288,10 @@ while(executando)
     }
 
     SDL_FillRect(tela, 0, 0);
+    DrawBackground();
 
     MovePlayer1(10);
-    MovePlayer2(10);
+    MovePlayer2(speed + rand() % 3);
     MoveBall();
 
     DrawImage(player1.x, player1.y, player1Image);
