@@ -22,6 +22,33 @@ SDL_Surface *fundo_transparente(const char *filename, Uint8 red, Uint8 green, Ui
     return otimizado;
 }
 
+// use essa função pra desenhar uma imagem cortada na tela
+void DrawImageFrame(int x, int y, SDL_Surface *source, SDL_Surface *destination, int width, int height, int frame)
+{
+    SDL_Rect mover;
+    mover.x = x;
+    mover.y = y;
+
+    int coluna = source->w / width;
+
+    SDL_Rect corte;
+    corte.x = (frame % coluna)*width;
+    corte.y = (frame / coluna)*height;
+    corte.w = width;
+    corte.h = height;
+
+    SDL_BlitSurface(source, &corte, destination, &mover);
+}
+
+// use essa função pra desenhar texto na tela
+void DrawText(int x, int y, SDL_Surface *source, SDL_Surface *destination, char texto[], int charSize, int start)
+{
+	for(unsigned int i = 0; i < strlen(texto); i++)
+    {
+        DrawImageFrame(x+i*charSize, y, source, destination, charSize, charSize, texto[i]-start);
+    }
+}
+
 
 SDL_Event evento;
 SDL_Surface *tela = NULL;
@@ -31,10 +58,14 @@ const int screen_width = 640;
 const int screen_height = 480;
 const int screen_bpp = 32;
 
+// pontos dos jogadores
+int Player1Pontos = 0;
+int Player2Pontos = 0;
 
 const int speed = 10;
 
 SDL_Surface *backgroundImage = NULL;
+SDL_Surface *numbersImage = NULL;
 SDL_Surface *player1Image = NULL;
 SDL_Surface *player2Image = NULL;
 SDL_Surface *ballImage = NULL;
@@ -42,6 +73,7 @@ SDL_Surface *ballImage = NULL;
 void LoadFiles()
 {
     backgroundImage = SDL_LoadBMP("gfx/background.bmp");
+    numbersImage = fundo_transparente("gfx/numbers.bmp",77,148,255);
     player1Image = SDL_LoadBMP("gfx/player1.bmp");
     player2Image = SDL_LoadBMP("gfx/player2.bmp");
     ballImage = fundo_transparente("gfx/ball.bmp", 0,255,255);
@@ -50,6 +82,7 @@ void LoadFiles()
 void CloseFiles()
 {
     SDL_FreeSurface(backgroundImage);
+    SDL_FreeSurface(numbersImage);
     SDL_FreeSurface(player1Image);
     SDL_FreeSurface(player2Image);
     SDL_FreeSurface(ballImage);
@@ -66,14 +99,12 @@ void DrawImage(int x, int y, SDL_Surface *image)
 }
 
 
-
 // para o framerate
 Uint32 start = 0;
 const int fps = 30;
 const int framerate =  1000/fps;
 
-int Player1Pontos = 0;
-int Player2Pontos = 0;
+
 
 
 // use essa função pra detectar colisão entre dois retângulos
@@ -90,7 +121,7 @@ int AABB(int x1, int y1, int width1, int height1, int x2, int y2, int width2, in
 	return 0;
 }
 
-// essa estrutura representa um retângulo
+// essa classe representa um retângulo
 class rectangle
 {
 	public:
@@ -103,7 +134,7 @@ class rectangle
 rectangle player1;
 rectangle player2;
 
-// essa estrutura representa uma bola
+// essa classe representa uma bola
 class _BALL
 {
 	public:
@@ -255,7 +286,7 @@ void MoveBall()
 	}
 }
 
-
+// desenha o background
 void DrawBackground()
 {
     DrawImage(0,0,backgroundImage);
@@ -264,6 +295,13 @@ void DrawBackground()
 // desenha os pontos dos personagens na tela
 void DrawScore()
 {
+    char str1[20];
+    sprintf(str1,"%d",Player1Pontos);
+    DrawText(80,0,numbersImage,tela,str1,60,0);
+
+    char str2[20];
+    sprintf(str2,"%d",Player2Pontos);
+    DrawText(640-60-80,0,numbersImage,tela,str2,60,0);
 }
 
 int main(int argc, char*args[])
@@ -287,12 +325,13 @@ while(executando)
         }
     }
 
-    SDL_FillRect(tela, 0, 0);
-    DrawBackground();
-
     MovePlayer1(10);
     MovePlayer2(speed + rand() % 3);
     MoveBall();
+
+    SDL_FillRect(tela, 0, 0);
+    DrawBackground();
+    DrawScore();
 
     DrawImage(player1.x, player1.y, player1Image);
     DrawImage(player2.x, player2.y, player2Image);
