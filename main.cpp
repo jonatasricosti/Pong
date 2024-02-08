@@ -334,12 +334,14 @@ while(executando)
     }
 
     MovePlayer1(10);
-    MovePlayer2(speed + rand() % 3);
+    MovePlayer2(16);
     MoveBall();
+
 
     SDL_FillRect(tela, 0, 0);
     DrawBackground();
     DrawScore();
+
 
     DrawImage(player1.x, player1.y, player1Image);
     DrawImage(player2.x, player2.y, player2Image);
