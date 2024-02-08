@@ -69,6 +69,7 @@ SDL_Surface *numbersImage = NULL;
 SDL_Surface *player1Image = NULL;
 SDL_Surface *player2Image = NULL;
 SDL_Surface *ballImage = NULL;
+SDL_Surface *iconImage = NULL;
 
 void LoadFiles()
 {
@@ -86,6 +87,7 @@ void CloseFiles()
     SDL_FreeSurface(player1Image);
     SDL_FreeSurface(player2Image);
     SDL_FreeSurface(ballImage);
+    SDL_FreeSurface(iconImage);
 }
 
 // use essa função pra desenhar uma imagem na tela
@@ -307,7 +309,13 @@ void DrawScore()
 int main(int argc, char*args[])
 {
 SDL_Init(SDL_INIT_EVERYTHING);
+
+iconImage = SDL_LoadBMP("gfx/icon.bmp");
+SDL_WM_SetIcon(iconImage, NULL);
+
 tela = SDL_SetVideoMode(screen_width,screen_height,screen_bpp,SDL_HWSURFACE | SDL_DOUBLEBUF);
+
+SDL_WM_SetCaption("Pong", NULL);
 
 LoadFiles();
 ResetGame();
