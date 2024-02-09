@@ -1,5 +1,13 @@
 #include <SDL.h>
 
+SDL_Event evento;
+SDL_Surface *tela = NULL;
+bool executando = true;
+
+const int screen_width = 640;
+const int screen_height = 480;
+const int screen_bpp = 32;
+
 // use essa função pra carregar uma imagem.bmp e deixar o fundo transparente
 SDL_Surface *fundo_transparente(const char *filename, Uint8 red, Uint8 green, Uint8 blue)
 {
@@ -20,6 +28,16 @@ SDL_Surface *fundo_transparente(const char *filename, Uint8 red, Uint8 green, Ui
     }
 
     return otimizado;
+}
+
+// use essa função pra desenhar uma imagem na tela
+void DrawImage(int x, int y, SDL_Surface *image)
+{
+    SDL_Rect mover;
+    mover.x = x;
+    mover.y = y;
+
+    SDL_BlitSurface(image, NULL, tela, &mover);
 }
 
 // use essa função pra desenhar uma imagem cortada na tela
@@ -50,19 +68,9 @@ void DrawText(int x, int y, SDL_Surface *source, SDL_Surface *destination, char 
 }
 
 
-SDL_Event evento;
-SDL_Surface *tela = NULL;
-bool executando = true;
-
-const int screen_width = 640;
-const int screen_height = 480;
-const int screen_bpp = 32;
-
 // pontos dos jogadores
 int Player1Pontos = 0;
 int Player2Pontos = 0;
-
-const int speed = 10;
 
 SDL_Surface *backgroundImage = NULL;
 SDL_Surface *numbersImage = NULL;
@@ -71,6 +79,8 @@ SDL_Surface *player2Image = NULL;
 SDL_Surface *ballImage = NULL;
 SDL_Surface *iconImage = NULL;
 
+// use essa função pra carregar arquivos
+// nota: essa função só deve ser chamada no começo do programa
 void LoadFiles()
 {
     backgroundImage = SDL_LoadBMP("gfx/background.bmp");
@@ -80,6 +90,8 @@ void LoadFiles()
     ballImage = fundo_transparente("gfx/ball.bmp", 0,255,255);
 }
 
+// use essa função pra fechar arquivos
+// nota: essa função só deve ser chamada no final do programa
 void CloseFiles()
 {
     SDL_FreeSurface(backgroundImage);
@@ -90,23 +102,11 @@ void CloseFiles()
     SDL_FreeSurface(iconImage);
 }
 
-// use essa função pra desenhar uma imagem na tela
-void DrawImage(int x, int y, SDL_Surface *image)
-{
-    SDL_Rect mover;
-    mover.x = x;
-    mover.y = y;
-
-    SDL_BlitSurface(image, NULL, tela, &mover);
-}
-
 
 // para o framerate
 Uint32 start = 0;
 const int fps = 30;
 const int framerate =  1000/fps;
-
-
 
 
 // use essa função pra detectar colisão entre dois retângulos
@@ -275,15 +275,12 @@ void MoveBall()
 	// colisão com o player1
 	if(AABB(player1.x,player1.y,player1.width,player1.height,ball.x,ball.y,ball.width,ball.height))
 	{
-		ball.x = ball.x+speed;
 		ball.vx = -ball.vx;
-
 	}
 
 	// colisão com o player2
 	if(AABB(player2.x,player2.y,player2.width,player2.height,ball.x,ball.y,ball.width,ball.height))
 	{
-		ball.x = ball.x-speed;
 		ball.vx = -ball.vx;
 	}
 }
@@ -303,7 +300,7 @@ void DrawScore()
 
     char str2[20];
     sprintf(str2,"%d",Player2Pontos);
-    DrawText(640-60-80,0,numbersImage,tela,str2,60,0);
+    DrawText(500,0,numbersImage,tela,str2,60,0);
 }
 
 int main(int argc, char*args[])
@@ -334,7 +331,7 @@ while(executando)
     }
 
     MovePlayer1(10);
-    MovePlayer2(16);
+    MovePlayer2(15);
     MoveBall();
 
 
