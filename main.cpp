@@ -309,7 +309,7 @@ SDL_Init(SDL_INIT_EVERYTHING);
 
 iconImage = SDL_LoadBMP("gfx/icon.bmp");
 SDL_WM_SetIcon(iconImage, NULL);
-
+SDL_putenv("SDL_VIDEO_WINDOW_POS=center"); // centraliza a janela
 tela = SDL_SetVideoMode(screen_width,screen_height,screen_bpp,SDL_HWSURFACE | SDL_DOUBLEBUF);
 
 SDL_WM_SetCaption("Pong", NULL);
